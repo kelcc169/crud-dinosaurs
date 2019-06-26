@@ -1,17 +1,22 @@
+require('dotenv').config();
 const express = require('express');
-const app = express();
 const layouts = require('express-ejs-layouts');
-// TODO remove fs and use sequelize instead
 const db = require('./models')
 const methodOverride = require('method-override');
+const multer = require('multer');
+const cloudinary = require('cloudinary');
 
 const port = 3000;
+
+const app = express();
+const upload = multer({dest: './uploads'});
 
 app.set('view engine', 'ejs');
 app.use(layouts);
 app.use(express.static(__dirname + '/static'));
 app.use(express.urlencoded({extended: false}));
 app.use(methodOverride('_method'));
+
 
 app.get('/', function (req, res) {
     res.render('index');
@@ -42,8 +47,10 @@ app.get('/dinosaurs/:id/edit', function (req, res) {
 
 //GET 1 dinosaur - /dinosaur/:id - show route
 app.get('/dinosaurs/:id', function (req, res) {
-    db.dinosaur.findByPk(parseInt(req.params.id))
-        .then(function(dinosaur) {
+    db.dinosaur.findOne({
+        where: {id: parseInt(req.params.id)},
+        include: [db.possession]
+    }).then(function(dinosaur) {
             res.render('dinos/show', {dinosaur} )
         });
 });
@@ -76,6 +83,23 @@ app.put('/dinosaurs/:id', function (req, res) {
     }).then(function(dinosaur) {
         res.redirect('./')
     });
+});
+
+//give a dino a thing
+app.post('/dinosaurs/:id/possessions', function (req, res) {
+    db.possession.create({
+        name: req.body.name,
+        dinosaurId: req.params.id
+    }).then(function (data) {
+        res.redirect('/dinosaurs/' + req.params.id)
+    });
+});
+
+app.post('/', upload.single('myFile'), function (req, res) {
+    cloudinary.uploader.upload(req.file.path, function (result) {
+        var imgUrl = cloudinary.url(result.public_id, { width: 1000 })
+        res.redirect('dinosaurs', {url: imgUrl});
+    })
 });
 
 app.listen(port, function () {

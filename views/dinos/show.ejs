@@ -1,5 +1,24 @@
 <h2> <%= dinosaur.name %></h2>
 <p> This dinosaur is a good dinosaur and it is a <%= dinosaur.type %>.</p>
+<p> This dinosaur owns things, because reasons.</p>
+<% dinosaur.possessions.forEach(function(object) { %>
+    <p><%= object.name %></p>
+<% }); %>
+
+<form action="/dinosaurs/<%= dinosaur.id %>/possessions" method="POST">
+    <h3>Give this dino a thing:</h3>
+    <input type="text" name="name" placeholder="what is it"><br />
+    <input type="submit" value="submit">
+</form>
+
+<h3>Add A Picture</h3>
+<form enctype="multipart/form-data" action="/" method="POST">
+    <input type="file" name="myFile">
+    <input type="submit">
+</form>
+
+<br />
+
 <a href="/dinosaurs/<%= dinosaur.id %>/edit">EDIT THIS DINO</a>
 <form method="POST" action="/dinosaurs/<%= dinosaur.id %>/?_method=DELETE">
     <input type="submit" value="DELETE">

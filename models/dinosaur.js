@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   dinosaur.associate = function(models) {
     // associations can be defined here
+    models.dinosaur.hasMany(models.possession)
   };
   return dinosaur;
 };

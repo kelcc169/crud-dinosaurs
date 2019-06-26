@@ -9,3 +9,9 @@
 
     <input type="submit" value="UPDATE MY DINO">
 </form>
+
+<form action="/dinosaurs/<%= dinosaur.id %>/possessions" method="POST">
+    <h3>Give this dino a thing:</h3>
+    <input type="text" name="name" placeholder="what is it"><br />
+    <input type="submit" value="submit">
+</form>
