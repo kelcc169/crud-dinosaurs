@@ -12,7 +12,7 @@
 </form>
 
 <h3>Add A Picture</h3>
-<form enctype="multipart/form-data" action="/" method="POST">
+<form enctype="multipart/form-data" action="/dinosaurs/<%= dinosaur.id %>/picture" method="POST">
     <input type="file" name="myFile">
     <input type="submit">
 </form>

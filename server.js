@@ -65,24 +65,24 @@ app.post('/dinosaurs', function (req, res) {
     });
 });
 
-//POST delete a dino
-app.delete('/dinosaurs/:id', function (req, res) {
-    db.dinosaur.destroy({
-        where: {id: parseInt(req.params.id)}
-    }).then(function(data) {})
-    res.redirect('../');
-});
-
 //Update my dino
 app.put('/dinosaurs/:id', function (req, res) {
     db.dinosaur.update({
         name: req.body.dinosaurName,
-        type: req.body.dinosaurType
+        type: req.body.dinosaurType,
     }, {
         where: {id: parseInt(req.params.id)}
     }).then(function(dinosaur) {
         res.redirect('./')
     });
+});
+
+// delete a dino
+app.delete('/dinosaurs/:id', function (req, res) {
+    db.dinosaur.destroy({
+        where: {id: parseInt(req.params.id)}
+    }).then(function(data) {})
+    res.redirect('../');
 });
 
 //give a dino a thing
@@ -95,7 +95,8 @@ app.post('/dinosaurs/:id/possessions', function (req, res) {
     });
 });
 
-app.post('/', upload.single('myFile'), function (req, res) {
+//upload dinosaur picture
+app.post('/dinosaurs/:id/picture', upload.single('myFile'), function (req, res) {
     cloudinary.uploader.upload(req.file.path, function (result) {
         var imgUrl = cloudinary.url(result.public_id, { width: 1000 })
         res.redirect('dinosaurs', {url: imgUrl});
