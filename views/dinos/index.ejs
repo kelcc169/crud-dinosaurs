@@ -1,7 +1,7 @@
 <h3>These are all of the dinos that we can GET</h3>
 <a href="/dinosaurs/new">Add a Dino!</a>
 <ul>
-    <% dinosaurs.forEach( function (dinosaur, index) { %>
-        <li> <a href="/dinosaurs/<%= index %>"> <%= dinosaur.name %> </a></li>
+    <% dinosaurs.forEach( function (dinosaur) { %>
+        <li><a href="/dinosaurs/<%= dinosaur.id %>"><%= dinosaur.name %></a></li>
     <% }); %>
 </ul>

@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const layouts = require('express-ejs-layouts');
 // TODO remove fs and use sequelize instead
-const fs = require('fs');
+const db = require('./models')
 const methodOverride = require('method-override');
 
 const port = 3000;
@@ -22,11 +22,9 @@ app.get('/', function (req, res) {
 
 //GET all of our dinosaurs /dinosaurs
 app.get('/dinosaurs', function (req, res) {
-    // TODO remove fs stuff and use sequelize functions
-    let dinosaurs = fs.readFileSync('./dinosaurs.json');
-    let dinoData = JSON.parse(dinosaurs);
-
-    res.render('dinos/index.ejs', {dinosaurs: dinoData});
+    db.dinosaur.findAll().then(function (dinosaurs) {
+        res.render('dinos/index', {dinosaurs});
+    });
 });
 
 //GET /dinosaurs/new - to serve up our new dino form
@@ -36,66 +34,48 @@ app.get('/dinosaurs/new', function (req, res) {
 
 //GET /dinosaurs/:id/edit - edit dino form
 app.get('/dinosaurs/:id/edit', function (req, res) {
-    // TODO remove fs stuff and use sequelize functions
-    let dinosaurs = fs.readFileSync('./dinosaurs.json');
-    let dinoData = JSON.parse(dinosaurs);
-    let id = parseInt(req.params.id);
-    res.render('dinos/edit', {dinosaur: dinoData[id], id});
+    db.dinosaur.findByPk(parseInt(req.params.id))
+        .then(function (dinosaur) {
+            res.render('dinos/edit', {dinosaur} );
+        });
 });
 
 //GET 1 dinosaur - /dinosaur/:id - show route
 app.get('/dinosaurs/:id', function (req, res) {
-    // TODO remove fs stuff and use sequelize functions
-    let dinosaurs = fs.readFileSync('./dinosaurs.json');
-    let dinoData = JSON.parse(dinosaurs);
-
-    let id = parseInt(req.params.id);
-    res.render('dinos/show', {dinosaur: dinoData[id], id})
+    db.dinosaur.findByPk(parseInt(req.params.id))
+        .then(function(dinosaur) {
+            res.render('dinos/show', {dinosaur} )
+        });
 });
 
 //POST make a new dino /dinosaurs 
 app.post('/dinosaurs', function (req, res) {    
-    // TODO remove fs stuff and use sequelize functions
-    //read our json
-    let dinosaurs = fs.readFileSync('./dinosaurs.json');
-    //convert it to an array
-    let dinoData = JSON.parse(dinosaurs);
-    //push new data into array
-    let newDino = {
-        type: req.body.dinosaurType,
-        name: req.body.dinosaurName
-    }
-
-    dinoData.push(newDino);
-    //write the array back to the file
-    fs.writeFileSync('./dinosaurs.json', JSON.stringify(dinoData));
-
-    res.redirect('/dinosaurs');
+    db.dinosaur.create({
+        name: req.body.dinosaurName,
+        type: req.body.dinosaurType
+    }).then(function (dinosaur) {
+        res.redirect('dinosaurs')
+    });
 });
 
 //POST delete a dino
 app.delete('/dinosaurs/:id', function (req, res) {
-    // TODO remove fs stuff and use sequelize functions
-    let dinosaurs = fs.readFileSync('./dinosaurs.json');
-    var dinoData = JSON.parse(dinosaurs);
-    var id = parseInt(req.params.id);
-    dinoData.splice(id, 1);
-    var dinoString = JSON.stringify(dinoData);
-    fs.writeFileSync('./dinosaurs.json', dinoString);
-
-    res.redirect('/dinosaurs');
+    db.dinosaur.destroy({
+        where: {id: parseInt(req.params.id)}
+    }).then(function(data) {})
+    res.redirect('../');
 });
 
 //Update my dino
 app.put('/dinosaurs/:id', function (req, res) {
-    // TODO remove fs stuff and use sequelize functions
-    let dinosaurs = fs.readFileSync('./dinosaurs.json');
-    let dinoData = JSON.parse(dinosaurs);
-    let id = parseInt(req.params.id);
-    dinoData[id].name = req.body.dinosaurName;
-    dinoData[id].type = req.body.dinosaurType;
-    fs.writeFileSync('./dinosaurs.json', JSON.stringify(dinoData));
-    res.redirect('/dinosaurs/' + id);
+    db.dinosaur.update({
+        name: req.body.dinosaurName,
+        type: req.body.dinosaurType
+    }, {
+        where: {id: parseInt(req.params.id)}
+    }).then(function(dinosaur) {
+        res.redirect('./')
+    });
 });
 
 app.listen(port, function () {
